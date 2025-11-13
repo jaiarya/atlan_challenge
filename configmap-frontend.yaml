@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-nginx-conf
+  namespace: atlan
+  labels:
+    app: frontend
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location / {
+        return 200 'frontend-ok';
+      }
+      location /api/ {
+        proxy_pass http://backend-svc:5678/;
+      }
+    }

@@ -1,9 +1,10 @@
-
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend-svc
   namespace: atlan
+  labels:
+    app: frontend
 spec:
   type: NodePort
   selector:
@@ -12,5 +13,4 @@ spec:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30081
-
+      nodePort: 30080
