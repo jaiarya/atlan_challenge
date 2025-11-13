@@ -2,7 +2,7 @@
 
 This Challenge reproduces an outage in Kubernetes using a **frontend (Nginx)** and **backend (http-echo)** in the **`atlan`** namespace. It demonstrates:
 
-- **Service Discovery/DNS failure** via a **backend Service selector mismatch** (no Endpoints), compounded by a **default‑deny egress NetworkPolicy** blocking DNS to CoreDNS.
+- **Service Discovery/DNS failure** via a **backend Service selector mismatch** (no Endpoints).
 - **CrashLoop** on the frontend though the wrong configuration of the deployment.
 - **Resource instability** via a **memory‑leak sidecar** that triggers **OOMKilled** and can surface **node MemoryPressure** in tighter clusters.
 
