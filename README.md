@@ -33,7 +33,7 @@ minikube       Ready    control-plane   22h   v1.34.0
 minikube-m02   Ready    worker          22h   v1.34.0
 minikube-m03   Ready    worker          3h    v1.34.0
 ```
-- We have two pods running, one forthe  frontend and one for the backend.
+- We have two pods running, one for the  frontend and one for the backend.
 ```
 [jai@localhost ~]$ k get po
 NAME                               READY   STATUS              RESTARTS   AGE
@@ -74,7 +74,7 @@ ab -n 200000 -c 2000 http://192.168.49.3:30080/
 ---
 ## Symptoms
 
-- While trying to access the backend via API it reports BAD gateway.
+- While trying to access the backend via API, it reports a bad gateway.
 ```
 [jai@localhost atlan]$ k -n atlan exec -it frontend-deploy-7484474544-8fkx6 -- curl -v backend-svc.atlan.svc.cluster.local:5678
 * Host backend-svc.atlan.svc.cluster.local:5678 was resolved.
@@ -246,7 +246,7 @@ Events:                   <none>
 NAME                               READY   STATUS      RESTARTS        AGE
 frontend-deploy-69dc57b85c-ztxsr   0/1     OOMKilled   2 (3m49s ago)   42m
 ```
-3. Describing the pod reports OOMKill but no abnormal events found.
+3. Describing the pod reports OOMKill, but no abnormal events found.
 ```
 [jai@localhost ~]$ k describe pods frontend-deploy-69dc57b85c-ztxsr
 Name:             frontend-deploy-69dc57b85c-ztxsr
