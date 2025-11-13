@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-stress
+  namespace: atlan
+spec:
+  nodeSelector:
+    node-role: memory-pressure
+  containers:
+  - name: stress
+    image: polinux/stress
+    command: ["stress"]
+    args: ["--vm", "2", "--vm-bytes", "1G", "--vm-hang", "1"]
+    resources:
+      requests:
+        memory: "50Mi"
+  restartPolicy: Never
