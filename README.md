@@ -15,8 +15,8 @@ This Challenge reproduces an outage in Kubernetes using a **frontend (Nginx)** a
 - [Manifests](#manifests)
   - [`deployment-backend.yaml`](#deployment-backendyaml) - This contains 1 replicas using `http-echo` image container used for simple HTTP request & response service with `backend-ok`
   - [`deployment-frontend.yaml`](#deployment-frontendyaml) - This contains 1 replicas using `nginx:1.25-alpine` image container listening to port `80` .
-  - [service-backend.yaml](#service-backend.yaml) - I have not exposed this externally for security reason hence used *ClusterIP*, this will only communicate to frontend service.
-  - [service-frontend.yaml](#service-frontend.yaml) - I have exposed this as NodePort acting as Frontend service.
+  - [`service-backend.yaml`](#service-backendyaml) - I have not exposed this externally for security reason hence used *ClusterIP*, this will only communicate to frontend service.
+  - [`service-frontend.yaml`](#service-frontendyaml) - I have exposed this as a NodePort acting as a Frontend service.
 - [Troubleshoot](#troubleshoot)
 - [Observations](#observations)
 - [Solution](#solution)
@@ -164,6 +164,44 @@ spec:
             items:
               - key: default.conf
                 path: default.conf
+```
+
+### `service-backend.yaml`
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  namespace: atlan
+  labels:
+    app: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 5678
+      targetPort: 5678
+```
+### `service-frontend.yaml`
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: atlan
+  labels:
+    app: frontend
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30080
 ```
 ---
 
