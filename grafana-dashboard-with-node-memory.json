@@ -1,7 +1,7 @@
 {
   "id": null,
   "uid": "atlan-sre-end2end",
-  "title": "Atlan SRE \u2014 Restarts, OOM & Backend Endpoints",
+  "title": "Atlan Restarts, OOM & Backend Endpoints",
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
