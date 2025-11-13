@@ -363,3 +363,38 @@ resources:
 ```
 kubectl -n atlan patch svc backend-svc -p '{"spec":{"selector":{"app":"backend-api"}}}'
 ```
+
+### Result
+
+- API from the frontend is successful.
+
+```
+[jai@localhost atlan]$ k -n atlan exec -it frontend-deploy-7c785796dd-bh9ld -- curl -v backend-svc.atlan.svc.cluster.local:5678
+* Host backend-svc.atlan.svc.cluster.local:5678 was resolved.
+* IPv6: (none)
+* IPv4: 10.102.68.45
+*   Trying 10.102.68.45:5678...
+* Connected to backend-svc.atlan.svc.cluster.local (10.102.68.45) port 5678
+> GET / HTTP/1.1
+> Host: backend-svc.atlan.svc.cluster.local:5678
+> User-Agent: curl/8.5.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< X-App-Name: http-echo
+< X-App-Version: 0.2.3
+< Date: Thu, 13 Nov 2025 19:15:34 GMT
+< Content-Length: 11
+< Content-Type: text/plain; charset=utf-8
+< 
+backend-ok
+* Connection #0 to host backend-svc.atlan.svc.cluster.local left intact
+```
+
+- No pod restart since the changes.
+
+<img width="1189" height="316" alt="Screenshot 2025-11-14 at 12 50 26 AM" src="https://github.com/user-attachments/assets/5b00bb48-d17c-45b3-a58d-1d990698ac2d" />
+
+- Node Memory usage have been dropped.
+<img width="1194" height="315" alt="Screenshot 2025-11-14 at 12 50 57 AM" src="https://github.com/user-attachments/assets/c11410d8-2d60-4d67-8347-ee2c4ded77c1" />
+
