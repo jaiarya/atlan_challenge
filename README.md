@@ -3,7 +3,7 @@
 This Challenge reproduces an outage in Kubernetes using a **frontend (Nginx)** and **backend (http-echo)** in the **`atlan`** namespace. It demonstrates:
 
 - **Service Discovery/DNS failure** via a **backend Service selector mismatch** (no Endpoints), compounded by a **default‑deny egress NetworkPolicy** blocking DNS to CoreDNS.
-- **CrashLoop** on the frontend via an **initContainer** that requires backend DNS to resolve before Nginx starts.
+- **CrashLoop** on the frontend though the wrong configuration of the deployment.
 - **Resource instability** via a **memory‑leak sidecar** that triggers **OOMKilled** and can surface **node MemoryPressure** in tighter clusters.
 
 ---
@@ -13,15 +13,14 @@ This Challenge reproduces an outage in Kubernetes using a **frontend (Nginx)** a
 - [Environment](#environment)
 - [Symptoms](#symptoms)
 - [Manifests](#manifests)
-  - [backend-deployment.yaml](#backend-deployment.yaml) - This contains 2 replicas using `httpbin` image container used for simple HTTP request & response service 
-  - [backend-service.yaml](#backend-service.yaml) - Exposing it as ClusterIP with port 80.
-  - [frontend-deployment.yaml](#frontend-deployment.yaml) - This contains single pod but with 2 containers:
-      - **initContainer**: must resolve backend FQDN; fails if DNS/Endpoints are broken (Init:CrashLoopBackOff)
-     - **sidecar memleak**: allocates memory continuously to trigger OOMKilled
-   
-  - [frontend-service.yaml](#frontend-service.yaml) - Exposing it as NodePort with port 80.
+  - [deployment-backend.yaml](#deployment-backend.yaml) - This contains 1 replicas using `http-echo` image container used for simple HTTP request & response service with `backend-ok`
+  - [deployment-frontend.yaml](#deployment-frontend.yaml) - This contains 1 replicas using `nginx:1.25-alpine` image container listening to port `80` .
+  - [service-backend.yaml](#service-backend.yaml) - I have not exposed this externally for security reason hence used *ClusterIP*, this will only communicate to frontend service.
+  - [service-frontend.yaml](#service-frontend.yaml) - I have exposed this as NodePort acting as Frontend service.
 - [Troubleshoot](#troubleshoot)
-- 
+- [Observations](#observations)
+- [Solution](#solution)
+- [Result](#result)
 ---
 
 ## Environment
@@ -34,14 +33,14 @@ minikube       Ready    control-plane   22h   v1.34.0
 minikube-m02   Ready    worker          22h   v1.34.0
 minikube-m03   Ready    worker          3h    v1.34.0
 ```
-- We have two pods running one for frontend and one for backend.
+- We have two pods running, one forthe  frontend and one for the backend.
 ```
 [jai@localhost ~]$ k get po
 NAME                               READY   STATUS              RESTARTS   AGE
 backend-deploy-7f866bd874-fq89l    1/1     Running             0          39m
 frontend-deploy-69dc57b85c-ztxsr   1/1     Running             0          28m
 ```
-- Frontend service is exposed as Nodeport and backend service as ClusterIP.
+- Frontend service is exposed as NodePort and backend service as ClusterIP.
 ```
 [jai@localhost ~]$ k get svc
 NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
@@ -88,6 +87,8 @@ ab -n 200000 -c 2000 http://192.168.49.3:30080/
 curl: (7) Failed to connect to backend-svc.atlan.svc.cluster.local port 5678 after 5 ms: Couldn't connect to server
 command terminated with exit code 7
 ```
+---
+## Manifests
 ---
 
 ## Troubleshoot
@@ -277,7 +278,7 @@ memory-stress                      1/1     Running   0               5h36m   10.
         memory: 50Mi
 ```
 
-12. Further checking on the SVC lookup failure, we could see that the backend pod works fine.
+11. Further checking on the SVC lookup failure, we could see that the backend pod works fine.
 
 ```
 [jai@localhost k8s]$ kgp -owide
@@ -294,7 +295,7 @@ PING 10.244.0.8 (10.244.0.8): 56 data bytes
 round-trip min/avg/max = 0.097/0.138/0.180 ms
 ```
 
-11. Reviewing the backend SVC and its corresponding pods reports *No Resources found*
+12. Reviewing the backend SVC and its corresponding pods reports *No Resources found*
 
 ```
 [jai@localhost k8s]$ k get svc backend-svc
@@ -323,7 +324,7 @@ Events:                   <none>
 No resources found in atlan namespace.
 ```
 
-12. When checking the pod labels, it reports the label as `app=backend-api` while the label on the service it is `app=backend`
+13. When checking the pod labels, it reports the label as `app=backend-api` while the label on the service it is `app=backend`
 
 ```
 [jai@localhost k8s]$ kubectl get pods --show-labels
@@ -331,7 +332,7 @@ NAME                               READY   STATUS    RESTARTS        AGE     LAB
 backend-deploy-7f866bd874-dznd6    1/1     Running   1 (6h37m ago)   6h53m   app=backend-api,pod-template-hash=7f866bd874
 frontend-deploy-7484474544-8fkx6   1/1     Running   4 (6h13m ago)   6h19m   app=frontend,pod-template-hash=7484474544
 ```
-
+---
 ## Observations
 
 1. The frontend pod (nginx) is configured with unrealistically low memory limits, hence causing .
@@ -343,7 +344,8 @@ frontend-deploy-7484474544-8fkx6   1/1     Running   4 (6h13m ago)   6h19m   app
     - Pod memory usage hitting limits
     - OOMKilled terminations
     - Pod restart spikes
-  
+
+---
 ## Solution
 
 
@@ -363,6 +365,7 @@ resources:
 ```
 kubectl -n atlan patch svc backend-svc -p '{"spec":{"selector":{"app":"backend-api"}}}'
 ```
+---
 
 ### Result
 
