@@ -13,7 +13,7 @@ This Challenge reproduces an outage in Kubernetes using a **frontend (Nginx)** a
 - [Environment](#environment)
 - [Symptoms](#symptoms)
 - [Manifests](#manifests)
-  - [deployment-backend.yaml](#deployment-backend.yaml) - This contains 1 replicas using `http-echo` image container used for simple HTTP request & response service with `backend-ok`
+  - [`deployment-backend.yaml`](#deployment-backend.yaml) - This contains 1 replicas using `http-echo` image container used for simple HTTP request & response service with `backend-ok`
   - [deployment-frontend.yaml](#deployment-frontend.yaml) - This contains 1 replicas using `nginx:1.25-alpine` image container listening to port `80` .
   - [service-backend.yaml](#service-backend.yaml) - I have not exposed this externally for security reason hence used *ClusterIP*, this will only communicate to frontend service.
   - [service-frontend.yaml](#service-frontend.yaml) - I have exposed this as NodePort acting as Frontend service.
@@ -89,6 +89,35 @@ command terminated with exit code 7
 ```
 ---
 ## Manifests
+
+### `deployment-backend.yaml`
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deploy
+  namespace: atlan
+  labels:
+    app: backend-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-api
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      containers:
+        - name: backend
+          image: hashicorp/http-echo:0.2.3
+          args:
+            - "-text=backend-ok"
+          ports:
+            - containerPort: 5678
+```
 ---
 
 ## Troubleshoot
