@@ -510,6 +510,13 @@ backend-ok
 
 - No pod restart since the changes.
 
+```
+[jai@localhost ~]$ kgp
+NAME                               READY   STATUS    RESTARTS      AGE
+backend-deploy-7f866bd874-dznd6    1/1     Running   1 (32h ago)   33h
+frontend-deploy-7c785796dd-bh9ld   1/1     Running   0             24h
+```
+
 <img width="1189" height="316" alt="Screenshot 2025-11-14 at 12 50 26 AM" src="https://github.com/user-attachments/assets/5b00bb48-d17c-45b3-a58d-1d990698ac2d" />
 
 - Node Memory usage have been dropped.
