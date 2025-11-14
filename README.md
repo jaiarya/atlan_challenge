@@ -21,6 +21,7 @@ This Challenge reproduces an outage in Kubernetes using a **frontend (Nginx)** a
 - [Observations](#observations)
 - [Solution](#solution)
 - [Result](#result)
+- [Improvements](#improvements)
 ---
 
 ## Environment
@@ -522,3 +523,15 @@ frontend-deploy-7c785796dd-bh9ld   1/1     Running   0             24h
 - Node Memory usage have been dropped.
 <img width="1194" height="315" alt="Screenshot 2025-11-14 at 12 50 57 AM" src="https://github.com/user-attachments/assets/c11410d8-2d60-4d67-8347-ee2c4ded77c1" />
 
+---
+## Improvements
+
+- I have created a Grafana Dashboard that includes the following for proactive monitoring:
+
+  - A dashboard that shows pod restart in `last 1h`, and another dashboard that reports pod restart over time.
+<img width="1188" height="343" alt="Screenshot 2025-11-15 at 2 26 46 AM" src="https://github.com/user-attachments/assets/11618f09-9890-4cbf-8521-a387f1e24745" />
+
+
+  - Another dashboard which reports endpoint missing.
+       
+<img width="403" height="229" alt="Screenshot 2025-11-15 at 2 27 22 AM" src="https://github.com/user-attachments/assets/2a9120c0-ee26-46ad-adbc-e1fbbcc3b5ae" />
